@@ -1,0 +1,13 @@
+#siteHeadingFont {
+color:white;
+font-family: 'Ceveat', cursive;
+}
+.commentsHeading {
+margin : 10px 0px;
+font-size: 14px;
+}
+
+.postedBy {
+font-family: 'Ceveat', cursive, arial;
+font-size:12px;
+}

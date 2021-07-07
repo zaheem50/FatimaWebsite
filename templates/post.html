@@ -1,0 +1,79 @@
+{% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+  <!-- Page Header -->
+  <header class="masthead" style="background-image: url('{{post.img_url}}')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>{{post.title}}</h1>
+            <h2 class="subheading">{{post.subtitle}}</h2>
+            <span class="meta">Posted by
+              <a href="#">{{post.author.name}}</a>
+              on {{post.date}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Post Content -->
+  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            {{ post.body|safe }}
+            END
+          <hr>
+            {% if current_user.id == 1 %}
+            <div class="clearfix">
+            <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
+            </div>
+            {% endif %}
+
+
+<!--           Comments Area -->
+              <h2 class="commentsHeading">Comments</h2>
+              <ul class="list-group">
+                {% if pre_comments %}
+                {% for comments in pre_comments %}
+                    <li class="list-group-item">
+                        <div class="commentText">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <img src="{{ comments.comment_author.email | gravatar }}">
+                                </div>
+                                <div class="col-md-10">
+                                    <p class="post-meta">
+                                        {{comments.text|safe}}
+                                        <p class="postedBy">
+                                            Posted by {{comments.comment_author.name|safe}}
+                                        </p>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+                {% endif %}
+              </ul>
+                    <h2 class="commentsHeading">Add Comments</h2>
+                    <div class="commentText">
+                          {{ ckeditor.load() }}
+                          {{ ckeditor.config(name='body') }}
+                          {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+                    </div>
+
+
+            </div>
+
+
+          </div>
+      </div>
+    </div>
+  </article>
+
+  <hr>
+{% include "footer.html" %}

@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user, login_manager
-from forms import CreatePostForm, LoginForm
+from forms import CreatePostForm, LoginForm, ContactForm
 from flask_gravatar import Gravatar
 from forms import CreatePostForm, RegisterForm, CreateCommentsForm
 from functools import wraps
@@ -74,6 +74,14 @@ class Comment(db.Model):
     parent_post = relationship("BlogPost", back_populates="comments")
     comment_author = relationship("User", back_populates="comments")
     text = db.Column(db.Text, nullable=False)
+
+class Contact(db.Model):
+    __tablename__ = "contact"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+    message = db.Column(db.String(512))
+
 
 
 # Create all the tables in the database
@@ -170,10 +178,18 @@ def show_post(post_id):
     comments_form = CreateCommentsForm()
     print(f"previous_comment={previous_comments}")
     if comments_form.validate_on_submit():
-        new_comment = Comment(
-            post_id=requested_post.id,
-            author_id=current_user.id,
-            text=comments_form.comments.data)
+        if not current_user.is_authenticated:
+            print(f"no user:")
+            new_comment = Comment(
+                post_id=requested_post.id,
+                author_id=3,
+                text=comments_form.comments.data)
+        else:
+            print(f"user:{current_user.id}")
+            new_comment = Comment(
+                post_id=requested_post.id,
+                author_id=current_user.id,
+                text=comments_form.comments.data)
         db.session.add(new_comment)
         db.session.commit()
         return redirect(url_for("show_post", post_id=post_id))
@@ -185,9 +201,23 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    return render_template("contact.html")
+    print(f"1")
+    contact_form = ContactForm()
+    if contact_form.validate_on_submit():
+        print(f"2")
+        new_contact = Contact(
+            name=contact_form.name.data,
+            email=contact_form.email.data,
+            message=contact_form.message.data)
+        print(f"3")
+        db.session.add(new_contact)
+        db.session.commit()
+        print(f"4")
+        flash("Contact Saved ")
+        return redirect(url_for("get_all_posts"))
+    return render_template("contact.html", form=contact_form)
 
 
 @app.route("/new-post", methods=['GET', 'POST'])
@@ -227,7 +257,7 @@ def edit_post(post_id):
         # post.author = post.author
         post.body = edit_form.body.data
         db.session.commit()
-        print("record editted successfully")
+        print("record edited successfully")
         return redirect(url_for("show_post", post_id=post.id))
 
     return render_template("make-post.html", form=edit_form)

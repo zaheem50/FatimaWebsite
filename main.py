@@ -85,7 +85,7 @@ class Contact(db.Model):
 
 
 # Create all the tables in the database
-# db.create_all()
+db.create_all()
 
 @login_manager.user_loader
 def load_user(user_id):

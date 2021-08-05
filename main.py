@@ -16,7 +16,7 @@ import os
 
 app = Flask(__name__)
 #app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
-app.config['SECRET_KEY'] = os.environ.get("8BYkEfBA6O6donzWlSihBXox7C0sKR6b")
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY",'8BYkEfBA6O6donzWlSihBXox7C0sKR6b')
 ckeditor = CKEditor(app)
 
 
@@ -25,7 +25,7 @@ Bootstrap(app)
 
 ##CONNECT TO DB
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL1","sqlite:///blog.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL1","sqlite:///blog123.db")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -85,7 +85,7 @@ class Contact(db.Model):
 
 
 # Create all the tables in the database
-#db.create_all()
+db.create_all()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -107,7 +107,7 @@ def admin_only(f):
 @app.route('/')
 def get_all_posts():
     posts = BlogPost.query.all()
-    print(f"posts[0].author={posts[0].author.name}")
+    # print(f"posts[0].author={posts[0].author.name}")
     return render_template("index.html", all_posts=posts)
 
 
